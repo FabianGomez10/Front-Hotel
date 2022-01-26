@@ -9,6 +9,7 @@ let opcionSave = "/save";
 let opcionUpdate = "/update";
 let mail_format = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
+
 /**
  * Consultar las categorias
  */
@@ -100,7 +101,6 @@ function crearLista(panel, registros) {
    tblRegistros += "</table>";
    $("#pnlLista" + panel).append(tblRegistros);
    $(":input").val("");
-   $("#btnActualizar").attr("style", "display: none !important");
 }
 
 /**
@@ -247,7 +247,7 @@ function consultarCategoriasLista() {
       error: crearLista2("Category", []),
       success: function (json) {
          crearLista2("Category", json);
-      },
+      }
    });
 }
 
@@ -262,7 +262,7 @@ function consultarClientesLista() {
       error: crearLista2("Client", []),
       success: function (json) {
          crearLista2("Client", json);
-      },
+      }
    });
 }
 
@@ -277,7 +277,7 @@ function consultarHabitacionesLista() {
       error: crearLista2("Room", []),
       success: function (json) {
          crearLista2("Room", json);
-      },
+      }
    });
 }
 
@@ -331,11 +331,7 @@ function crearDatosLista(tabla, datos) {
    } else if (tabla === "Client") {
       for (i = 0; i < datos.length; i++) {
          headers +=
-            "<option value=" +
-            datos[i].idClient +
-            ">" +
-            datos[i].name +
-            "</option>";
+            "<option value=" + datos[i].idClient + ">" + datos[i].name + "</option>";
       }
    }
    return headers;
@@ -383,8 +379,8 @@ function borrar(id, entidad) {
  * @param {*} id 
  */
 function editar(panel, id) {
-   $("#btnAgregar").attr("style", "display: none !important");
-   $("#btnActualizar").attr("style", "display: block !important");
+   $("#btnAgregar").addClass("d-none");
+   $("#btnActualizar").removeClass("d-none");
    $.ajax({
       url: urlConexion + panel + "/" + id,
       type: "GET",
@@ -419,11 +415,6 @@ function editar(panel, id) {
             $("#selClient").val(json.client.idClient);
             $("#selRoom").val(json.room.id);
          }
-
-         //$('#btnActualizar').attr('onclick', "actualizarCategoria('"+json.id+"')");
-         //$('#btnActualizar').attr('onclick', "actualizarCategoria(" + json.id + ", 'Category')");
-         //'onclick','editar('Reservation'," +datos[i].idReservation +")'
-
       },
       error: function () {
          alert("Ocurrio un error");
@@ -557,21 +548,21 @@ function registrarNuevo(modulo) {
    if (modulo === "Category") {
       $.ajax({
          url: urlConexion + moduloCategory + opcionSave,
-         data: JSON.stringify({
-            name: $("#txtName").val(),
-            description: $("#txtDescription").val(),
-         }),
          type: "POST",
          contentType: "application/json",
-         dataType: "text",
-         error: function (result) {
-            alert("Error: Ver log para detalles.");
-            console.log(result);
-         },
+         data: JSON.stringify({
+            name: $("#txtName").val(),
+            description: $("#txtDescription").val()
+         }),
          success: function () {
             alert("Categoría Agregada.");
             consultarCategorias();
          },
+         error: function (result) {
+            alert("Error: Ver log para detalles.");
+            console.log(result);
+         }
+         
       });
    } else if (modulo === "Room") {
       $.ajax({
@@ -580,14 +571,13 @@ function registrarNuevo(modulo) {
             name: $("#txtName").val(),
             stars: $("#txtStars").val(),
             category: {
-               id: $("#selCategory").val(),
+               id: $("#selCategory").val()
             },
             hotel: $("#txtHotel").val(),
-            description: $("#txtDescription").val(),
+            description: $("#txtDescription").val()
          }),
          type: "POST",
          contentType: "application/json",
-         dataType: "text",
          error: function (result) {
             alert("Error: Ver log para detalles.");
             console.log(result);
@@ -595,7 +585,7 @@ function registrarNuevo(modulo) {
          success: function () {
             alert("Habitación Agregada.");
             consultarHabitaciones();
-         },
+         }
       });
    } else if (modulo === "Client") {
       $.ajax({
@@ -604,11 +594,10 @@ function registrarNuevo(modulo) {
             name: $("#txtName").val(),
             email: $("#txtEmail").val(),
             password: $("#txtPassword").val(),
-            age: $("#txtAge").val(),
+            age: $("#txtAge").val()
          }),
          type: "POST",
          contentType: "application/json",
-         dataType: "text",
          error: function (result) {
             alert("Error: Ver log para detalles.");
             console.log(result);
@@ -616,7 +605,7 @@ function registrarNuevo(modulo) {
          success: function () {
             alert("Cliente Agregado.");
             consultarClientes();
-         },
+         }
       });
    } else if (modulo === "Message") {
       $.ajax({
@@ -624,15 +613,14 @@ function registrarNuevo(modulo) {
          data: JSON.stringify({
             messageText: $("#txtMessageText").val(),
             client: {
-               idClient: $("#selClient").val(),
+               idClient: $("#selClient").val()
             },
             room: {
-               id: $("#selRoom").val(),
-            },
+               id: $("#selRoom").val()
+            }
          }),
          type: "POST",
          contentType: "application/json",
-         dataType: "text",
          error: function (result) {
             alert("Error: Ver log para detalles.");
             console.log(result);
@@ -640,7 +628,7 @@ function registrarNuevo(modulo) {
          success: function () {
             alert("Mensaje Agregado.");
             consultarMensajes();
-         },
+         }
       });
    } else if (modulo === "Reservation") {
       $.ajax({
@@ -649,15 +637,14 @@ function registrarNuevo(modulo) {
             startDate: $("#txtStartDate").val(),
             devolutionDate: $("#txtDevolutionDate").val(),
             client: {
-               idClient: $("#selClient").val(),
+               idClient: $("#selClient").val()
             },
             room: {
-               id: $("#selRoom").val(),
-            },
+               id: $("#selRoom").val()
+            }
          }),
          type: "POST",
          contentType: "application/json",
-         dataType: "text",
          error: function (result) {
             alert("Error: Ver log para detalles.");
             console.log(result);
@@ -665,7 +652,7 @@ function registrarNuevo(modulo) {
          success: function () {
             alert("Reserva Agregada.");
             consultarReservas();
-         },
+         }
       });
    }
 }
@@ -689,7 +676,7 @@ function actualizarRegistro(id1, opcion) {
          name: $("#txtName").val(),
          stars: $("#txtStars").val(),
          category: {
-            id: $("#selCategory").val(),
+            id: $("#selCategory").val()
          },
          hotel: $("#txtHotel").val(),
          description: $("#txtDescription").val()
@@ -707,10 +694,10 @@ function actualizarRegistro(id1, opcion) {
          idMessage: id1,
          messageText: $("#txtMessageText").val(),
          client: {
-            idClient: $("#selClient").val(),
+            idClient: $("#selClient").val()
          },
          room: {
-            id: $("#selRoom").val(),
+            id: $("#selRoom").val()
          }
 
       }
@@ -720,10 +707,10 @@ function actualizarRegistro(id1, opcion) {
          startDate: $("#txtStartDate").val(),
          devolutionDate: $("#txtDevolutionDate").val(),
          room: {
-            id: $("#selRoom").val(),
+            id: $("#selRoom").val()
          },
          client: {
-            idClient: $("#selClient").val(),
+            idClient: $("#selClient").val()
          }
       }
    }
@@ -732,13 +719,13 @@ function actualizarRegistro(id1, opcion) {
       data: JSON.stringify(datos),
       type: "PUT",
       contentType: "application/json",
-      dataType: "text",
       error: function (result) {
          alert("Error: Ver log para detalles.");
          console.log(result);
       },
       success: function () {
-         $("#btnAgregar").attr("style", "display: block !important");
+         $("#btnAgregar").removeClass("d-none");
+         $("#btnActualizar").addClass("d-none");
          if (opcion == "Category") {
             alert("Categoría Actualizada.");
             consultarCategorias();
