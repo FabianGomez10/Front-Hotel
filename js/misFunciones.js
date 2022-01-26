@@ -1,4 +1,3 @@
-//let urlConexion = "http://129.151.119.82:8080/api/";
 let urlConexion = "http://localhost:8080/api/";
 let moduloCategory = "Category";
 let moduloRoom = "Room";
