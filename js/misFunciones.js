@@ -1,4 +1,5 @@
-let urlConexion = "http://localhost:8080/api/";
+let urlConexion = "http://129.151.119.82:8080/api/";
+//let urlConexion = "http://localhost:8080/api/";
 let moduloCategory = "Category";
 let moduloRoom = "Room";
 let moduloClient = "Client";
@@ -415,6 +416,9 @@ function editar(panel, id) {
             $("#selClient").val(json.client.idClient);
             $("#selRoom").val(json.room.id);
          }
+         //$('#btnActualizar').attr('onclick', "actualizarCategoria('"+json.id+"')");
+         //$('#btnActualizar').attr('onclick', "actualizarCategoria(" + json.id + ", 'Category')");
+         //'onclick','editar('Reservation'," +datos[i].idReservation +")'
       },
       error: function () {
          alert("Ocurrio un error");
