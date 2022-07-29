@@ -1,14 +1,13 @@
-let urlConexion = "http://localhost:8080/api/";
-let moduloCategory = "Category";
-let moduloRoom = "Room";
-let moduloClient = "Client";
-let moduloMessage = "Message";
-let moduloReservation = "Reservation";
-let opcionGetAll = "/all";
-let opcionSave = "/save";
-let opcionUpdate = "/update";
-let mail_format = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-
+const urlConexion = "http://129.151.119.82:8080/api/";
+const moduloCategory = "Category";
+const moduloRoom = "Room";
+const moduloClient = "Client";
+const moduloMessage = "Message";
+const moduloReservation = "Reservation";
+const opcionGetAll = "/all";
+const opcionSave = "/save";
+const opcionUpdate = "/update";
+const mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
 /**
  * Consultar las categorias
@@ -20,10 +19,21 @@ function consultarCategorias() {
       dataType: "json",
       success: function (json) {
          crearLista("Category", json);
-      }
+      },
+      error: errorApi
    });
 }
 
+/**
+ * Error de API
+ */
+const errorApi = () => {
+   clearTimeout(this.timerId);
+   $(".border-danger").removeClass("d-none");
+   this.timerId = setTimeout(() => {
+      $(".border-danger").addClass("d-none");
+   }, 5000);
+}
 /**
  * Consultar las habitaciones
  */
@@ -34,7 +44,8 @@ function consultarHabitaciones() {
       dataType: "json",
       success: function (json) {
          crearLista("Room", json);
-      }
+      },
+      error: errorApi
    });
 }
 
@@ -48,7 +59,8 @@ function consultarClientes() {
       dataType: "json",
       success: function (json) {
          crearLista("Client", json);
-      }
+      },
+      error: errorApi
    });
 }
 
@@ -62,7 +74,8 @@ function consultarMensajes() {
       dataType: "json",
       success: function (json) {
          crearLista("Message", json);
-      }
+      },
+      error: errorApi
    });
 }
 
@@ -76,7 +89,8 @@ function consultarReservas() {
       dataType: "json",
       success: function (json) {
          crearLista("Reservation", json);
-      }
+      },
+      error: errorApi
    });
 }
 
@@ -89,11 +103,10 @@ function crearLista(panel, registros) {
    $("#pnlLista" + panel).empty();
    let tblRegistros =
       "<table id='tblRegistros' class='table table-success table-striped table-bordered text-center'>";
-   if (typeof registros === "undefined" || (typeof registros != "undefined" && registros.length === 0)) {
-      tblRegistros += "<tr>";
-      tblRegistros +=
-         "<td colspan='5'><center><strong>No existen registros.</strong></center></td>";
-      tblRegistros += "</tr>";
+   if (registros.length === 0) {
+      tblRegistros += `<tr>
+         <td><strong>No existen registros.</strong></td>
+      </tr>`
    } else {
       tblRegistros += crearHeaders(panel);
       tblRegistros += crearDatos(panel, registros);
@@ -135,7 +148,7 @@ function crearHeaders(tabla) {
       headers += "<td class='align-middle'><strong>Habitación</strong></td>";
    } else if (tabla === "Reservation") {
       headers += accion;
-      headers += "<td class='align-middle'><strong>Fecha inicio</strong></td>";
+      headers += "<td class='align-middle min-width'><strong>Fecha inicio</strong></td>";
       headers +=
          "<td class='align-middle'><strong>Fecha devolución</strong></td>";
       headers += "<td class='align-middle'><strong>Cliente</strong></td>";
@@ -343,34 +356,41 @@ function crearDatosLista(tabla, datos) {
  * @param {*} entidad 
  */
 function borrar(id, entidad) {
-   $.ajax({
-      url: urlConexion + entidad + "/" + id,
-      type: "DELETE",
-      dataType: "json",
-      success: function (json) {
-         alert("Se elimino correctamente");
-         if (entidad == "Category") {
-            consultarCategorias();
-         } else if (entidad == "Room") {
-            consultarHabitaciones();
-         } else if (entidad == "Client") {
-            consultarClientes();
-         } else if (entidad == "Message") {
-            consultarMensajes();
-         } else {
-            consultarReservas();
+   let result = confirm("¿Está seguro de borrar el registro?");
+   if (result) {
+      $.ajax({
+         url: urlConexion + entidad + "/" + id,
+         type: "DELETE",
+         dataType: "json",
+         success: function (json) {
+            alert("Se elimino correctamente");
+            if (entidad == "Category") {
+               consultarCategorias();
+            } else if (entidad == "Room") {
+               consultarHabitaciones();
+            } else if (entidad == "Client") {
+               consultarClientes();
+            } else if (entidad == "Message") {
+               consultarMensajes();
+            } else {
+               consultarReservas();
+            }
+         },
+         error: function (err) {
+            if (err.status == 500) {
+               if (entidad == "Category") {
+                  alert("Elimine las habitaciones asociadas a esta categoria");
+               } else if (entidad == "Room") {
+                  alert("Elimine los mensajes y/o reservas asociados a esta habitacion");
+               } else if (entidad == "Client") {
+                  alert("Elimine los mensajes y/o reservas asociados a este cliente");
+               }
+            } else {
+               errorApi();
+            }
          }
-      },
-      error: function () {
-         if (entidad == "Category") {
-            alert("Elimine las habitaciones asociadas a esta categoria");
-         } else if (entidad == "Room") {
-            alert("Elimine los mensajes y/o reservas asociad@s a esta habitacion");
-         } else if (entidad == "Client") {
-            alert("Elimine los mensajes y/o reservas asociad@s a este cliente");
-         }
-      }
-   });
+      });
+   }
 }
 
 /**
@@ -387,49 +407,80 @@ function editar(panel, id) {
       dataType: "json",
       success: function (json) {
          if (panel == "Category") {
-            $('#btnActualizar').attr('onclick', `validarCategoria('actualizar',${json.id})`);
             $("#txtName").val(json.name);
             $("#txtDescription").val(json.description);
          } else if (panel == "Room") {
-            $('#btnActualizar').attr('onclick', `validarHabitacion('actualizar',${json.id})`);
             $("#txtName").val(json.name),
                $("#txtStars").val(json.stars),
                $("#selCategory").val(json.category.id),
                $("#txtHotel").val(json.hotel),
                $("#txtDescription").val(json.description)
          } else if (panel == "Client") {
-            $('#btnActualizar').attr('onclick', `validarCliente('actualizar',${json.idClient})`);
             $("#txtName").val(json.name);
             $("#txtEmail").val(json.email);
             $("#txtPassword").val(json.password);
             $("#txtAge").val(json.age);
          } else if (panel == "Message") {
-            $('#btnActualizar').attr('onclick', `validarMensaje('actualizar',${json.idMessage})`);
             $("#txtMessageText").val(json.messageText);
             $("#selClient").val(json.client.idClient);
             $("#selRoom").val(json.room.id);
          } else {
-            $('#btnActualizar').attr('onclick', `validarReserva('actualizar',${json.idReservation})`);
             $("#txtStartDate").val(json.startDate.split("T")[0]);
             $("#txtDevolutionDate").val(json.devolutionDate.split("T")[0]);
             $("#selClient").val(json.client.idClient);
             $("#selRoom").val(json.room.id);
          }
-         //$('#btnActualizar').attr('onclick', "actualizarCategoria('"+json.id+"')");
-         //$('#btnActualizar').attr('onclick', "actualizarCategoria(" + json.id + ", 'Category')");
-         //'onclick','editar('Reservation'," +datos[i].idReservation +")'
+         $("#btnActualizar").click((e) => {
+            let boton = e.target.innerText;
+            if (boton.match(/categoría/i)) {
+               validarCategoria('actualizar', id);
+            }
+            else if (boton.match(/habitacion/i)) {
+               validarHabitacion('actualizar', id);
+            }
+            else if (boton.match(/cliente/i)) {
+               validarCliente('actualizar', id);
+            }
+            else if (boton.match(/mensaje/i)) {
+               validarMensaje('actualizar', id);
+            }
+            else {
+               validarReserva('actualizar', id);
+            }
+         });
       },
-      error: function () {
-         alert("Ocurrio un error");
-      }
+      error: errorApi
    });
 }
 
 /**
- * Validar campos
+ * Dar click al boton de agregar
+ */
+$("#btnAgregar").click((e) => {
+   let boton = e.target.innerText;
+   if (boton.match(/categoría/i)) {
+      validarCategoria('agregar');
+   }
+   else if (boton.match(/habitación/i)) {
+      validarHabitacion('agregar');
+   }
+   else if (boton.match(/cliente/i)) {
+      validarCliente('agregar');
+   }
+   else if (boton.match(/mensaje/i)) {
+      validarMensaje('agregar');
+   }
+   else {
+      validarReserva('agregar');
+   }
+});
+
+/**
+ * 
+ * @param {*} opcion 
+ * @param {*} id 
  */
 function validarCategoria(opcion, id) {
-   event.preventDefault();
    if ($("#txtName").val() === "") {
       alert("Ingrese el Nombre de la Categoría.");
       $("#txtName").focus();
@@ -447,7 +498,6 @@ function validarCategoria(opcion, id) {
  * Validar campos
  */
 function validarHabitacion(opcion, id) {
-   event.preventDefault();
    if ($("#txtName").val() === "") {
       alert("Ingrese el Nombre de la Habitación.");
       $("#txtName").focus();
@@ -474,14 +524,13 @@ function validarHabitacion(opcion, id) {
  * Validar campos
  */
 function validarCliente(opcion, id) {
-   event.preventDefault();
    if ($("#txtName").val() === "") {
       alert("Ingrese el nombre del Cliente.");
       $("#txtName").focus();
    } else if ($("#txtEmail").val() === "") {
       alert("Ingrese el e-mail del Cliente.");
       $("#txtEmail").focus();
-   } else if (!mail_format.test($("#txtEmail").val())) {
+   } else if (!mailFormat.test($("#txtEmail").val())) {
       alert("Ingrese un E-mail de Cliente válido");
       $("#txtEmail").focus();
    } else if ($("#txtPassword").val() === "") {
@@ -501,7 +550,6 @@ function validarCliente(opcion, id) {
  * Validar campos
  */
 function validarMensaje(opcion, id) {
-   event.preventDefault();
    if ($("#txtMessageText").val() === "") {
       alert("Ingrese el texto del Mensaje.");
       $("#txtMessageText").focus();
@@ -522,20 +570,35 @@ function validarMensaje(opcion, id) {
  * Validar campos
  */
 function validarReserva(opcion, id) {
-   event.preventDefault();
    if ($("#txtStartDate").val() === "") {
       alert("Ingrese la fecha de inicio de la Reserva.");
       $("#txtStartDate").focus();
-   } else if ($("#txtDevolutionDate").val() === "") {
+      return;
+   }
+   if ($("#txtDevolutionDate").val() === "") {
       alert("Ingrese la fecha de devolución de la Reserva.");
       $("#txtDevolutionDate").focus();
-   } else if ($("#selClient").val() === "") {
+      return;
+   } else {
+      let fechaInicio = new Date($("#txtStartDate").val());
+      let fechaDevolucion = new Date($("#txtDevolutionDate").val());
+      if (fechaDevolucion < fechaInicio) {
+         alert("La fecha de devolución debe ser mayor o igual a la fecha de inicio.");
+         $("#txtDevolutionDate").focus();
+         return;
+      }
+   }
+   if ($("#selClient").val() === "") {
       alert("Indique el cliente de la Reserva.");
       $("#selClient").focus();
-   } else if ($("#selRoom").val() === "") {
+      return;
+   }
+   if ($("#selRoom").val() === "") {
       alert("Indique la habitación de la Reserva.");
       $("#selRoom").focus();
-   } else if (opcion == "agregar") {
+      return;
+   }
+   if (opcion == "agregar") {
       registrarNuevo("Reservation");
    } else {
       actualizarRegistro(id, "Reservation");
@@ -547,117 +610,77 @@ function validarReserva(opcion, id) {
  * @param {*} modulo
  */
 function registrarNuevo(modulo) {
-   event.preventDefault();
-   if (modulo === "Category") {
-      $.ajax({
-         url: urlConexion + moduloCategory + opcionSave,
-         type: "POST",
-         contentType: "application/json",
-         data: JSON.stringify({
-            name: $("#txtName").val(),
-            description: $("#txtDescription").val()
-         }),
-         success: function () {
+   let datos;
+   if (modulo == "Category") {
+      datos = {
+         name: $("#txtName").val(),
+         description: $("#txtDescription").val()
+      }
+   } else if (modulo == "Room") {
+      datos = {
+         name: $("#txtName").val(),
+         stars: $("#txtStars").val(),
+         category: {
+            id: $("#selCategory").val()
+         },
+         hotel: $("#txtHotel").val(),
+         description: $("#txtDescription").val()
+      }
+   } else if (modulo == "Client") {
+      datos = {
+         email: $("#txtEmail").val(),
+         password: $("#txtPassword").val(),
+         name: $("#txtName").val(),
+         age: $("#txtAge").val()
+      }
+   } else if (modulo == "Message") {
+      datos = {
+         messageText: $("#txtMessageText").val(),
+         client: {
+            idClient: $("#selClient").val()
+         },
+         room: {
+            id: $("#selRoom").val()
+         }
+
+      }
+   } else {
+      datos = {
+         startDate: $("#txtStartDate").val(),
+         devolutionDate: $("#txtDevolutionDate").val(),
+         room: {
+            id: $("#selRoom").val()
+         },
+         client: {
+            idClient: $("#selClient").val()
+         }
+      }
+   }
+   $.ajax({
+      url: urlConexion + modulo + opcionSave,
+      data: JSON.stringify(datos),
+      type: "POST",
+      contentType: "application/json",
+      error: errorApi,
+      success: function () {
+         if (modulo == "Category") {
             alert("Categoría Agregada.");
             consultarCategorias();
-         },
-         error: function (result) {
-            alert("Error: Ver log para detalles.");
-            console.log(result);
-         }
-         
-      });
-   } else if (modulo === "Room") {
-      $.ajax({
-         url: urlConexion + moduloRoom + opcionSave,
-         data: JSON.stringify({
-            name: $("#txtName").val(),
-            stars: $("#txtStars").val(),
-            category: {
-               id: $("#selCategory").val()
-            },
-            hotel: $("#txtHotel").val(),
-            description: $("#txtDescription").val()
-         }),
-         type: "POST",
-         contentType: "application/json",
-         error: function (result) {
-            alert("Error: Ver log para detalles.");
-            console.log(result);
-         },
-         success: function () {
-            alert("Habitación Agregada.");
+         } else if (modulo == "Room") {
+            alert("Habitacion Agregada.");
             consultarHabitaciones();
-         }
-      });
-   } else if (modulo === "Client") {
-      $.ajax({
-         url: urlConexion + moduloClient + opcionSave,
-         data: JSON.stringify({
-            name: $("#txtName").val(),
-            email: $("#txtEmail").val(),
-            password: $("#txtPassword").val(),
-            age: $("#txtAge").val()
-         }),
-         type: "POST",
-         contentType: "application/json",
-         error: function (result) {
-            alert("Error: Ver log para detalles.");
-            console.log(result);
-         },
-         success: function () {
+         } else if (modulo == "Client") {
             alert("Cliente Agregado.");
             consultarClientes();
-         }
-      });
-   } else if (modulo === "Message") {
-      $.ajax({
-         url: urlConexion + moduloMessage + opcionSave,
-         data: JSON.stringify({
-            messageText: $("#txtMessageText").val(),
-            client: {
-               idClient: $("#selClient").val()
-            },
-            room: {
-               id: $("#selRoom").val()
-            }
-         }),
-         type: "POST",
-         contentType: "application/json",
-         error: function (result) {
-            alert("Error: Ver log para detalles.");
-            console.log(result);
-         },
-         success: function () {
+         } else if (modulo == "Message") {
             alert("Mensaje Agregado.");
             consultarMensajes();
-         }
-      });
-   } else if (modulo === "Reservation") {
-      $.ajax({
-         url: urlConexion + moduloReservation + opcionSave,
-         data: JSON.stringify({
-            startDate: $("#txtStartDate").val(),
-            devolutionDate: $("#txtDevolutionDate").val(),
-            client: {
-               idClient: $("#selClient").val()
-            },
-            room: {
-               id: $("#selRoom").val()
-            }
-         }),
-         type: "POST",
-         contentType: "application/json",
-         error: function (result) {
-            alert("Error: Ver log para detalles.");
-            console.log(result);
-         },
-         success: function () {
+         } else {
             alert("Reserva Agregada.");
             consultarReservas();
          }
-      });
-   }
+      }
+   });
 }
 
 /**
@@ -722,13 +745,11 @@ function actualizarRegistro(id1, opcion) {
       data: JSON.stringify(datos),
       type: "PUT",
       contentType: "application/json",
-      error: function (result) {
-         alert("Error: Ver log para detalles.");
-         console.log(result);
-      },
+      error: errorApi,
       success: function () {
          $("#btnAgregar").removeClass("d-none");
          $("#btnActualizar").addClass("d-none");
+         $("#btnActualizar").off('click');
          if (opcion == "Category") {
             alert("Categoría Actualizada.");
             consultarCategorias();
@@ -741,7 +762,7 @@ function actualizarRegistro(id1, opcion) {
          } else if (opcion == "Message") {
             alert("Mensaje Actualizado.");
             consultarMensajes();
-         } else if (opcion == "Reservation") {
+         } else {
             alert("Reserva Actualizada.");
             consultarReservas();
          }

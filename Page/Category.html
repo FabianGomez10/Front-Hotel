@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   <meta charset="UTF-8" />
+   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+   <title>Hotel La Mesa - Categorías</title>
+   <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,800" rel="stylesheet" />
+   <link href="../css/template.css" rel="stylesheet" />
+   <link href="../css/style.css" rel="stylesheet" />
+   <link href="../css/templatemo.css" rel="stylesheet" />
+</head>
+
+<body>
+
+   <!-- Page Header -->
+   <div class="container">
+      <div class="tm-site-header">
+         <div class="row">
+            <div class="col-12 tm-site-header-col">
+               <div>
+                  <i class="far fa-2x fa-eye tm-site-icon"></i>
+                  <h1 class="tm-site-name">Hotel La Mesa</h1>
+               </div>
+               <div class="tm-menu-container-outer">
+
+                  <!--Navbar-->
+                  <nav class="navbar navbar-expand-lg">
+
+                     <!-- Collapse button -->
+                     <button class="navbar-toggler" type="button" data-toggle="collapse"
+                        data-target="#navbarSupportedContent1" aria-controls="navbarSupportedContent1"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                        <span><i class="fas fa-bars fa-1x"></i></span>
+                     </button>
+
+                     <!-- Collapsible content -->
+                     <div class="collapse navbar-collapse tm-nav" id="navbarSupportedContent1">
+
+                        <!-- Links -->
+                        <ul class="navbar-nav mr-auto">
+                           <li class="nav-item">
+                              <a class="nav-link tm-nav-link" href="../index.html">Inicio</a>
+                           </li>
+                           <li class="nav-item active">
+                              <a class="nav-link tm-nav-link" href="#">Categorías<span
+                                    class="sr-only">(current)</span></a>
+                           </li>
+                           <li class="nav-item">
+                              <a class="nav-link tm-nav-link" href="Room.html">Habitaciones</a>
+                           </li>
+                           <li class="nav-item">
+                              <a class="nav-link tm-nav-link" href="Client.html">Clientes</a>
+                           </li>
+                           <li class="nav-item">
+                              <a class="nav-link tm-nav-link" href="Message.html">Mensajes</a>
+                           </li>
+                           <li class="nav-item">
+                              <a class="nav-link tm-nav-link" href="Reservation.html">Reservas</a>
+                           </li>
+                        </ul>
+                        <!-- Links -->
+                     </div>
+                     <!-- Collapsible content -->
+                  </nav>
+                  <!--/.Navbar-->
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <div class="row">
+         <div class="col-12">
+            <div class="tm-main-bg"></div>
+         </div>
+      </div>
+
+      <!-- Main -->
+      <main>
+         <!-- Welcome section -->
+         <section class="tm-welcome">
+            <h2 class="tm-section-header mt-3 bd-title">Categorías</h2>
+            <div class="row">
+               <div class="col-lg-6 mb-0 p-4 py-md-5">
+                  <div class="tm-contact-form-wrap">
+                     <p class="mb-4">
+                        <strong>Registrar Categoria en API</strong>
+                     </p>
+                     <form class="tm-contact-form">
+                        <div class="form-group">
+                           <input type="text" id="txtName" name="contact_name"
+                              class="form-control rounded-0 border-top-0 border-right-0 border-left-0"
+                              placeholder="Nombre" />
+                        </div>
+                        <div class="form-group">
+                           <input type="text" id="txtDescription" name="contact_name"
+                              class="form-control rounded-0 border-top-0 border-right-0 border-left-0"
+                              placeholder="Descripción" />
+                        </div>
+                        <div class="form-group mb-0 text-right">
+                           <button type="button" class="btn rounded-0 tm-btn-primary p-md-3" id="btnAgregar">
+                              Agregar Categoría
+                           </button>
+                           <button id="btnActualizar" type="button"
+                              class="btn rounded-0 tm-btn-primary d-none p-md-3 px-2 ml-negativo">
+                              Actualizar Categoría
+                           </button>
+                        </div>
+                     </form>
+                  </div>
+               </div>
+               <div class="col-lg-6 mb-5 p-4 py-md-5">
+                  <div>
+                     <div class="tm-double-border-2 tm-border-gray tm-box-pad">
+                        <p class="mb-4">
+                           <strong>Datos extraídos desde el API</strong>
+                        </p>
+                     </div>
+                     <div class="border border-danger bg-danger rounded text-center d-none"
+                        style="min-height: 7rem;">
+                        <p class="text-white h4 text-uppercase font-weight-lighter p-4">Ocurrio un Error en el consumo
+                        </p>
+                     </div>
+                     <div id="pnlListaCategory" class="table-responsive mt-3"></div>
+                  </div>
+               </div>
+            </div>
+         </section>
+
+         <footer>
+            Copyright &copy;Hotel La Mesa - Design:
+            <a href="https://templatemo.com">TemplateMo</a><br />
+            Oscar Fabián Gómez Jurado<br />
+         </footer>
+      </main>
+   </div>
+   <script src="../js/jquery-3.4.1.min.js"></script>
+   <script src="../js/bootstrap.min.js"></script>
+   <script src="../js/templatemo-script.js"></script>
+   <script src="../js/misFunciones.js"></script>
+
+   <script>
+      consultarCategorias();
+   </script>
+</body>
+
+</html>
